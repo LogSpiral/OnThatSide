@@ -1,0 +1,48 @@
+{
+  "targetFlip": 0,
+  "targetRotation": 0,
+  "captureSolid": 2,
+  "captureWall": 1,
+  "captureCreature": 0,
+  "layer": 3,
+  "priority": 0,
+  "lightingSource": 0,
+  "lightFreq": 0.5,
+  "behavior": 0,
+  "sourceFollow": 0,
+  "sourceFollowId": 0,
+  "targetFollow": 1,
+  "targetFollowId": 0,
+  "targetFollowFlip": 0,
+  "targetFollowRotation": 0,
+  "parallax": 0,
+  "colorH": 0,
+  "colorS": 0,
+  "colorV": 0,
+  "colorA": 1,
+  "filter": 0,
+  "blending": 0,
+  "colorR": 1,
+  "colorG": 1,
+  "colorB": 1,
+  "turnedOn": 0,
+  "anchor": {
+    "X": 0.5,
+    "Y": 0.5
+  },
+  "sourcePoint": {
+    "X": 39808,
+    "Y": 4384
+  },
+  "sourceSize": {
+    "X": 3008,
+    "Y": 160
+  },
+  "targetPoint": {
+    "X": 38304,
+    "Y": 4400
+  },
+  "targetScale": 1,
+  "targetFollowSpeedRotation": 0,
+  "updateFreq": 1
+}
