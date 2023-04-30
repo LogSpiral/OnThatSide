@@ -25,6 +25,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace OnThatSide
 {
+    public static class Utils
+    {
+        public static Vector2 Multiply(this Vector2 v1, Vector2 v2) => v1 * v2;
+        public static Vector2 Multiply(this Vector2 v1, float x = 1, float y = 1) => v1 * new Vector2(x, y);
+        public static float Multiply(this float v1, float v2) => v1 * v2;
+    }
     public class OnThatSideWorld : Subworld
     {
         public override WorldGenConfiguration Config => base.Config;
@@ -131,7 +137,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -144,19 +150,25 @@ namespace OnThatSide
             Victor.sleeping.isSleeping = true;
             //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
             Victor.PlayerFrame();
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-32, 0), MathHelper.PiOver2, new Vector2(10, 14));
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+            Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
+
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
             //bool flag = true;
             //if (flag)
             //    Main.EntitySpriteDraw(TextureAssets.MagicPixel.Value, new Vector2(960 - 18, 560 - 85) - OnThatSidePlayer.screenOffsetor, new Rectangle(0, 0, 1, 1), Color.DarkRed, 0, new Vector2(.5f), new Vector2(2, 4), 0, 0);
             Anton.sitting.isSitting = true;
             Anton.PlayerFrame();
+            Anton.direction = -1;
             float angleOffset = MathF.Cos(timer / 60f * MathHelper.Pi) * MathHelper.Pi / 6;
             float angleOffset2 = MathF.Cos(timer / 45f * MathHelper.Pi) * MathHelper.Pi / 12;
+            float angleOffset3 = MathF.Cos(timer / 75f * MathHelper.Pi) * MathHelper.Pi / 24;
 
-            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Quarter, -MathHelper.PiOver2 + angleOffset + angleOffset2);
-            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.PiOver2 + MathHelper.Pi / 6);
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.ThreeQuarters, MathHelper.PiOver2 + angleOffset + angleOffset2 + angleOffset3);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.PiOver2 - MathHelper.Pi / 6 - angleOffset3);
 
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(32, 0), 0, new Vector2(10, 14));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), 0, new Vector2(10, 21));
             #endregion
 
 
@@ -170,7 +182,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -180,28 +192,102 @@ namespace OnThatSide
 
             #region 绘制内容
             Victor.direction = -1;
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-32, 0), MathHelper.PiOver2, new Vector2(10, 14));
+            Victor.sleeping.isSleeping = true;
+            //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
+            Victor.PlayerFrame();
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+            Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
+
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
             //bool flag = true;
             //if (flag)
             //    Main.EntitySpriteDraw(TextureAssets.MagicPixel.Value, new Vector2(960 - 18, 560 - 85) - OnThatSidePlayer.screenOffsetor, new Rectangle(0, 0, 1, 1), Color.DarkRed, 0, new Vector2(.5f), new Vector2(2, 4), 0, 0);
-
-            Anton.sitting.isSitting = false;
-            Anton.PlayerFrame();
-            if (timer < 120)
+            if (timer < 30)
             {
-                float fac = timer / 120f;
                 Anton.compositeFrontArm.stretch = Player.CompositeArmStretchAmount.Full;
-                Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, fac * (1 - fac) * 4 * MathHelper.Pi / 3, 0.05f);
-                Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, fac * (1 - fac) * 4 * MathHelper.Pi / 6, 0.05f);
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + Vector2.SmoothStep(new Vector2(32, 0), new Vector2(12, 7), fac), MathHelper.SmoothStep(0, -MathHelper.PiOver2, fac), new Vector2(10, 14));
+                Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, -MathHelper.Pi / 6, 0.2f);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + Vector2.SmoothStep(new Vector2(33, 2), new Vector2(32, 0), timer / 30f), 0, new Vector2(10, 21));
+                //Main.NewText((timer, "0"));
+                //Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, fac * (1 - fac) * 4 * MathHelper.Pi / 6, 0.2f);
+            }
+            else if (timer < 60)
+            {
+                Anton.sitting.isSitting = false;
+                Anton.direction = 1;
+                Anton.PlayerFrame();
+                Anton.compositeFrontArm.stretch = Player.CompositeArmStretchAmount.Full;
+                Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, 0, 0.2f);
+                Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, 0, 0.2f);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(32, 0), 0, new Vector2(10, 21));
+                //Main.NewText((timer, "1"));
+
+            }
+            else if (timer < 180)
+            {
+                float fac = (timer - 60) / 120f;
+                float smoothFac = MathHelper.SmoothStep(0, 1, fac);
+                //float legFac = MathHelper.SmoothStep(0, 1, (timer - 150) / 30f);
+                //float Fac2 = MathHelper.SmoothStep(0, 1, (timer - 120) / 30f);
+                //if (Fac2 == 1) Fac2 += legFac;
+                //Fac2 *= .5f;
+                float fullRot;
+                float armFac;
+                if (timer >= 120)
+                {
+                    armFac = 1 - MathHelper.SmoothStep(0, 1, (timer - 120) / 60f);
+                    Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Lerp(MathHelper.Pi / 6, -MathHelper.Pi / 6, armFac));
+                    Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Lerp(-MathHelper.Pi / 3, 0, armFac));
+                    fullRot = -MathHelper.PiOver2;
+                    Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(fullRot,
+                        MathHelper.Pi / 3 * 2, Vector2.Lerp(new Vector2(6, -16), new Vector2(6, -10), armFac),
+                        -fullRot, Vector2.Lerp(new Vector2(-2, -14), new Vector2(-2, -12), armFac),
+                        null, new Vector2(-12, 0));
+                    //Main.NewText("2");
+                    //Main.NewText((timer, "2.5"));
+
+                }
+                else
+                {
+                    armFac = 1 - MathHelper.SmoothStep(0, 1, (timer - 60) / 60f);
+                    //Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Lerp(-MathHelper.Pi / 6, 0, armFac));
+                    //Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, 0);
+                    fullRot = MathHelper.Lerp(-MathHelper.PiOver2, 0, armFac);
+
+                    Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(fullRot,
+                        MathHelper.Lerp(MathHelper.Pi / 3 * 2, 0, armFac), Vector2.Lerp(new Vector2(6, -10), default, armFac),
+                        -fullRot, Vector2.Lerp(new Vector2(-2, -12), default, armFac),
+                        null, Vector2.Lerp(new Vector2(-12, 0), default, armFac * armFac * armFac * armFac));
+                    //Main.NewText("2.5");
+                    //Main.NewText((timer, "2"));
+
+                }
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + Vector2.Lerp(new Vector2(33, 2), new Vector2(32, 0), smoothFac), fullRot, new Vector2(10, 21));
+
+            }
+            else if (timer < 210)
+            {
+                float fac = (timer - 180) / 30f;
+                fac = 1 - fac;
+                float smoothFac = MathHelper.SmoothStep(0, 1, fac);
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2,
+                    MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 3 * 2, smoothFac), Vector2.Lerp(new Vector2(-2, -14), new Vector2(6, -16), smoothFac),
+                    MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 2, smoothFac), Vector2.Lerp(new Vector2(-6, -10), new Vector2(-2, -14), smoothFac),
+                    null, new Vector2(-12, 0));
+                Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 6);
+                Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
+                //Main.NewText((timer, "3"));
 
             }
             else
             {
-                Anton.SetCompositeArmFront(false, 0, 0);
-                Anton.SetCompositeArmBack(false, 0, 0);
-
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+                Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 6);
+                Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+                Anton.direction = 1;
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
+                //Main.NewText((timer, "4"));
 
             }
 
@@ -216,7 +302,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -226,11 +312,22 @@ namespace OnThatSide
 
             #region 绘制内容
             Victor.direction = -1;
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-32, 0), MathHelper.PiOver2, new Vector2(10, 14));
+            Victor.sleeping.isSleeping = true;
+            //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
+            Victor.PlayerFrame();
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+            Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
+
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
             //bool flag = true;
             //if (flag)
             //    Main.EntitySpriteDraw(TextureAssets.MagicPixel.Value, new Vector2(960 - 18, 560 - 85) - OnThatSidePlayer.screenOffsetor, new Rectangle(0, 0, 1, 1), Color.DarkRed, 0, new Vector2(.5f), new Vector2(2, 4), 0, 0);
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 6);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+            Anton.direction = 1;
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
             #endregion
         }
         public void Part4(int timer, out int newTimer)
@@ -242,7 +339,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -251,34 +348,135 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            if (timer < 120)
+            if (timer < 40)
             {
-                float fac = timer / 120f;
-                Victor.compositeFrontArm.enabled = true;
-                Victor.compositeBackArm.enabled = true;
-                Victor.compositeFrontArm.stretch = Player.CompositeArmStretchAmount.Full;
-                Victor.compositeFrontArm.rotation = MathHelper.Lerp(Victor.compositeFrontArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 3, 0.05f);
-                Victor.compositeBackArm.rotation = MathHelper.Lerp(Victor.compositeBackArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 6, 0.05f);
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-32, 0), MathHelper.SmoothStep(MathHelper.PiOver2, 0, fac), new Vector2(10, 14));
+                //Main.NewText("0");
+                Victor.direction = -1;
+                Victor.sleeping.isSleeping = true;
+                //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
+                Victor.PlayerFrame();
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+                Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+                Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
 
             }
-            else if (timer < 240)
+            else if (timer < 120)
             {
+                float fac = (timer - 40) / 80f;
+
+                //Victor.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+                //MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0)
+                float smoothFac = MathHelper.SmoothStep(0, 1, fac);
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2,
+                    MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 3 * 2, smoothFac), Vector2.Lerp(new Vector2(-2, -14), new Vector2(6, -16), smoothFac),
+                    MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 2, smoothFac), Vector2.Lerp(new Vector2(-6, -10), new Vector2(-2, -14), smoothFac),
+                    null, new Vector2(-12, 0));
+                //Victor.compositeFrontArm.enabled = true;
+                //Victor.compositeBackArm.enabled = true;
+                //Victor.compositeFrontArm.stretch = Player.CompositeArmStretchAmount.Full;
+                //Victor.compositeFrontArm.rotation = MathHelper.Lerp(Victor.compositeFrontArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 3, 0.05f);
+                //Victor.compositeBackArm.rotation = MathHelper.Lerp(Victor.compositeBackArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 6, 0.05f);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
+                //Main.NewText("1");
+            }
+            else if (timer < 180)
+            {
+                float fac = (timer - 120) / 60f;
+                float smoothFac = MathHelper.SmoothStep(0, 1, fac);
+                //float legFac = MathHelper.SmoothStep(0, 1, (timer - 150) / 30f);
+                //float Fac2 = MathHelper.SmoothStep(0, 1, (timer - 120) / 30f);
+                //if (Fac2 == 1) Fac2 += legFac;
+                //Fac2 *= .5f;
+                float fullRot;
+                float armFac;
+                if (timer < 150)
+                {
+                    armFac = MathHelper.SmoothStep(0, 1, (timer - 120) / 30f);
+                    Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Lerp(MathHelper.Pi / 6, -MathHelper.Pi / 6, armFac));
+                    Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Lerp(-MathHelper.Pi / 3, 0, armFac));
+                    fullRot = MathHelper.PiOver2;
+                    Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(fullRot,
+                        MathHelper.Pi / 3 * 2, Vector2.Lerp(new Vector2(6, -16), new Vector2(6, -10), armFac),
+                        fullRot, Vector2.Lerp(new Vector2(-2, -14), new Vector2(-2, -12), armFac),
+                        null, new Vector2(-12, 0));
+                    //Main.NewText("2");
+
+                }
+                else
+                {
+                    armFac = MathHelper.SmoothStep(0, 1, (timer - 150) / 30f);
+                    Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Lerp(-MathHelper.Pi / 6, 0, armFac));
+                    Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, 0);
+                    fullRot = MathHelper.Lerp(MathHelper.PiOver2, 0, armFac);
+
+                    Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(fullRot,
+                        MathHelper.Lerp(MathHelper.Pi / 3 * 2, 0, armFac), Vector2.Lerp(new Vector2(6, -10), default, armFac),
+                        fullRot, Vector2.Lerp(new Vector2(-2, -12), default, armFac),
+                        null, Vector2.Lerp(new Vector2(-12, 0), default, armFac * armFac * armFac * armFac));
+                    //Main.NewText("2.5");
+
+                }
+                //Victor.compositeFrontArm.enabled = true;
+                //Victor.compositeBackArm.enabled = true;
+                //Victor.compositeFrontArm.stretch = Player.CompositeArmStretchAmount.Full;
+                //Victor.compositeFrontArm.rotation = MathHelper.Lerp(Victor.compositeFrontArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 3, 0.05f);
+                //Victor.compositeBackArm.rotation = MathHelper.Lerp(Victor.compositeBackArm.rotation, -fac * (1 - fac) * 4 * MathHelper.Pi / 6, 0.05f);
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + Vector2.Lerp(new Vector2(-33, 2), new Vector2(-32, 0), smoothFac), fullRot, new Vector2(10, 21));
+
+            }
+            else if (timer < 300)
+            {
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
                 Victor.SetCompositeArmFront(false, 0, 0);
                 Victor.SetCompositeArmBack(false, 0, 0);
-                Victor.velocity = new Vector2(-32 / 120f, 0);
+                //Victor.velocity = new Vector2(-32 / 120f, 0);
+                Victor.velocity = new Vector2(MathHelper.SmoothStep(-32, -64, (timer - 181f) / 120f) - MathHelper.SmoothStep(-32, -64, (timer - 180f) / 120f), 0);
+
                 Victor.PlayerFrame();
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(MathHelper.SmoothStep(-32, -64, (timer - 120f) / 120f), 0), 0, new Vector2(10, 14));
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(MathHelper.SmoothStep(-32, -64, (timer - 180f) / 120f), 0), 0, new Vector2(10, 21));
+                //Main.NewText("3");
 
             }
             else
             {
                 Victor.velocity = default;
                 Victor.PlayerFrame();
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 14));
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 21));
 
             }
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+
+            if (timer < 360)
+            {
+                Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 6);
+                Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+                Anton.direction = 1;
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            }
+            else if (timer < 480)
+            {
+                if (timer < 420)
+                {
+                    Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, MathHelper.Pi / 3, 0.025f);
+                    Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, MathHelper.Pi / 2, 0.025f);
+                }
+                else
+                {
+                    Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, MathHelper.Pi / 6 * 5f, 0.025f);
+                    Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, MathHelper.Pi / 6 * 5f, 0.025f);
+                }
+                Anton.direction = 1;
+                var fac = MathHelper.SmoothStep(0, 1, (timer - 360) / 120f);
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3 * (1 - fac), new Vector2(-2, -14) * (1 - fac), MathHelper.Pi / 3 * (1 - fac), new Vector2(-6, -10) * (1 - fac), null, new Vector2(-12, 0) * (1 - fac));
+            }
+            else
+            {
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+                Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+                Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            }
+            Anton.direction = 1;
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
             #endregion
         }
@@ -291,7 +489,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -300,8 +498,11 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 14));
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 21));
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
             #endregion
         }
@@ -314,7 +515,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -323,8 +524,11 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 14));
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 21));
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
             #endregion
         }
@@ -337,7 +541,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -346,8 +550,11 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 14));
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 21));
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
             #endregion
         }
@@ -360,7 +567,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -369,29 +576,36 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            if (timer < 270)
+            int offCen = 590;
+            if (timer < offCen)
             {
                 Victor.direction = -1;
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 14));
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-64, 0), 0, new Vector2(10, 21));
             }
-            else if (timer < 330)
+            else if (timer < offCen + 60)
             {
-                float fac = (timer - 270) / 60f;
-                Victor.velocity = new Vector2(64 / 120f, 0);
+                float fac = (timer - offCen) / 60f;
+                Victor.velocity = new Vector2(MathHelper.SmoothStep(-64, -16, fac) - MathHelper.SmoothStep(-64, -16, (timer - offCen - 1) / 60f), 0);
                 Victor.PlayerFrame();
                 Victor.direction = 1;
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(MathHelper.SmoothStep(-64, -16, fac), 0), 0, new Vector2(10, 14));
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(MathHelper.SmoothStep(-64, -16, fac), 0), 0, new Vector2(10, 21));
 
             }
             else
             {
                 Victor.velocity = default;
                 Victor.PlayerFrame();
-                Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3 * 2 * MathHelper.SmoothStep(0, 1, (timer - 330f) / 30f));
-                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 14));
-            }
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+                Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3 * 2 * MathHelper.SmoothStep(0, 1, (timer - offCen - 60) / 30f));
+                if (timer - offCen == 90)
+                    Victor.sitting.isSitting = true;
+                Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * MathHelper.SmoothStep(0, 1, (timer - offCen - 90) / 30f));
 
+                Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 21));
+            }
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
             #endregion
         }
         public void Part9(int timer, out int newTimer)
@@ -403,7 +617,7 @@ namespace OnThatSide
             newTimer = timer - partMaxtime;
             if (timer > partMaxtime) return;
             float factor = MathHelper.Clamp(timer / (float)partMaxtime, 0, 1);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             #endregion
 
             #region 画面修改
@@ -412,9 +626,12 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 14));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 21));
 
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(12, 7), -MathHelper.PiOver2, new Vector2(10, 14));
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
+            Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * 5f);
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
             #endregion
         }
@@ -446,7 +663,7 @@ namespace OnThatSide
             var player = Main.player[Projectile.owner];
             var factor = Timer / (float)MaxTime;
             //Projectile.Center = player.Center = new Vector2(MathHelper.Lerp(6520, 124680, factor * factor), 6587);
-            Vector2 center = new Vector2(64764, 2539 - 22);
+            Vector2 center = new Vector2(64758, 2539 - 22);
             if (Timer == 1)
             {
                 Main.hideUI = true;
@@ -775,7 +992,7 @@ namespace OnThatSide
                 12639,12684,
             };
             int[] antonMouthKey = new int[]
-            { 
+            {
                 7654,7659,
                 7686,7701,
                 7779,7855,
@@ -807,6 +1024,69 @@ namespace OnThatSide
             base.Kill(timeLeft);
         }
     }
+    public class DrawInterfaceProjectile : ModProjectile
+    {
+        public override string Texture => "Terraria/Images/Item_1";
+        public Player drawPlayer;
+        public override void SetDefaults()
+        {
+            drawPlayer = new Player();
+            drawPlayer.hair = 19;
+            drawPlayer.hairColor = new Color(86, 68, 17);
+            drawPlayer.eyeColor = new Color(105, 90, 75);
+            drawPlayer.pantsColor = new Color(59, 76, 60);
+            drawPlayer.shirtColor = new Color(93, 130, 95);
+            drawPlayer.shoeColor = new Color(160, 105, 60);
+            drawPlayer.skinColor = new Color(255, 125, 90);
+            drawPlayer.underShirtColor = new Color(71, 94, 71);
+            drawPlayer.PlayerFrame();
+            Projectile.hide = true;
+            base.SetDefaults();
+        }
+        public override void AI()
+        {
+            Projectile.Center = Main.LocalPlayer.Center;
+            Projectile.timeLeft = 2;
+            base.AI();
+        }
+        public override void Kill(int timeLeft)
+        {
+            base.Kill(timeLeft);
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Vector2 center = new Vector2(64758, 2539 - 22);
+            var mplr = drawPlayer.GetModPlayer<OnThatSidePlayer>();
+            drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+            drawPlayer.direction = 1;
+            mplr.drawMouth = true;
+            mplr.FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
+
+            //mplr.headRotationBuffer = -MathHelper.Pi / 3;
+            //mplr.bodyRotationBuffer = -MathHelper.Pi / 3;
+            //mplr.headOffsetBuffer = new Vector2(-4, -14).RotatedBy(-MathHelper.PiOver2);
+
+            //mplr.bodyOffsetBuffer = new Vector2(0, -10).RotatedBy(-MathHelper.PiOver2);
+            //mplr.legOffsetBuffer = new Vector2(6, 0).RotatedBy(-MathHelper.PiOver2);
+
+            drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+            drawPlayer.direction = -1;
+            mplr.FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
+            Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
+
+            return false;
+        }
+        public override void PostDraw(Color lightColor)
+        {
+            base.PostDraw(lightColor);
+        }
+        public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
+        {
+            overPlayers.Add(index);
+            base.DrawBehind(index, behindNPCsAndTiles, behindNPCs, behindProjectiles, overPlayers, overWiresUI);
+        }
+    }
     public class OnThatSideBiome : ModBiome
     {
         public override bool IsBiomeActive(Player player)
@@ -817,6 +1097,7 @@ namespace OnThatSide
         public override int Music => MusicLoader.GetMusicSlot(Mod, "Music/YoungPeoplesMarch" + (OnThatSide.UseRedArmyChoir ? "_TheRedArmyChoir" : ""));
     }
     /// <summary>
+    /// 
     /// 有讨厌的没法在头和头盔之间的罢格
     /// </summary>
     public class MouthLayer : PlayerDrawLayer
@@ -836,8 +1117,14 @@ namespace OnThatSide
                     896 or 784 or 448 or 392 or 504 or 840 => -2,
                     _ => 0
                 };
-                Vector3 headColor = drawInfo.colorHead.ToVector3();
-                drawInfo.DrawDataCache.Add(new DrawData(TextureAssets.MagicPixel.Value, position + new Vector2(player.direction * 4, 5 + player.gfxOffY + offsetY), new Rectangle(0, 0, 1, 1), new Color(217 / 255f * headColor.X, 48 / 255f * headColor.Y, 54 / 255f * headColor.Z), 0, new Vector2(.5f), new Vector2(4, 2), 0, 0));
+                Vector3 headColor = drawInfo.colorHead.ToVector3();//new Vector2(player.direction * 4, 5 + player.gfxOffY + offsetY)
+                drawInfo.DrawDataCache.Add(new DrawData(TextureAssets.MagicPixel.Value, position, new Rectangle(0, 0, 1, 1), new Color(217 / 255f * headColor.X, 48 / 255f * headColor.Y, 54 / 255f * headColor.Z), drawInfo.drawPlayer.headRotation, new Vector2(.5f) + new Vector2(-1 * player.direction, -2.25f - offsetY * .5f), new Vector2(4, 2), 0, 0));
+
+
+                //DrawData drawData = new DrawData(TextureAssets.MagicPixel.Value, position, new Rectangle(0,0,1,1), Color.Purple, drawinfo.drawPlayer.headRotation, new Vector2(.5f), 1f, drawinfo.playerEffect, 0);
+                //drawInfo.DrawDataCache.Add(drawData);
+                //DrawData drawData2 = new DrawData(TextureAssets.MagicPixel.Value, position + new Vector2(player.direction * 4, 5 + player.gfxOffY + offsetY), new Rectangle(0, 0, 1, 1), Color.Cyan, drawinfo.drawPlayer.headRotation, new Vector2(.5f), 1f, drawinfo.playerEffect, 0);
+                //drawInfo.DrawDataCache.Add(drawData2);
             }
         }
         public override Position GetDefaultPosition()
@@ -848,6 +1135,7 @@ namespace OnThatSide
     }
     public class OnThatSidePlayer : ModPlayer
     {
+
         //public static void BuildSingleRoom(Point leftDown)
         //{
 
@@ -871,8 +1159,65 @@ namespace OnThatSide
         {
             base.HideDrawLayers(drawInfo);
         }
+        /// <summary>
+        /// 快速设置各部件相关参数
+        /// </summary>
+        /// <param name="fullRotation">你传入draw函数那边的旋转量，用于计算其它值</param>
+        /// <param name="headRotation">头旋转</param>
+        /// <param name="headOffset">头偏移</param>
+        /// <param name="bodyRotation">身旋转</param>
+        /// <param name="bodyOffset">身偏移</param>
+        /// <param name="legRotation">腿旋转</param>
+        /// <param name="legOffset">腿偏移</param>
+        public void FastVisualSet(float fullRotation = 0, float? headRotation = null, Vector2? headOffset = null, float? bodyRotation = null, Vector2? bodyOffset = null, float? legRotation = null, Vector2? legOffset = null)
+        {
+            headRotationBuffer = headRotation?.Multiply(Player.direction);
+            bodyRotationBuffer = bodyRotation?.Multiply(Player.direction);
+            legRotationBuffer = legRotation?.Multiply(Player.direction);
+            headOffsetBuffer = (headOffset?.Multiply(Player.direction))?.RotatedBy(-fullRotation);
+            bodyOffsetBuffer = (bodyOffset?.Multiply(Player.direction))?.RotatedBy(-fullRotation);
+            legOffsetBuffer = (legOffset?.Multiply(Player.direction))?.RotatedBy(-fullRotation);
+        }
+        public void FastVisualDefault() => FastVisualSet(default, 0, default(Vector2), 0, default(Vector2), 0, default(Vector2));
+        public float? headRotationBuffer;
+        public float? bodyRotationBuffer;
+        public float? legRotationBuffer;
+        public Vector2? headOffsetBuffer;
+        public Vector2? bodyOffsetBuffer;
+        public Vector2? legOffsetBuffer;
         public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
         {
+            if (headRotationBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.headRotation = headRotationBuffer.Value;
+                headRotationBuffer = null;
+            }
+            if (bodyRotationBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.bodyRotation = bodyRotationBuffer.Value;
+                bodyRotationBuffer = null;
+            }
+            if (legRotationBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.legRotation = legRotationBuffer.Value;
+                legRotationBuffer = null;
+            }
+            if (headOffsetBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.headPosition = headOffsetBuffer.Value;
+                headOffsetBuffer = null;
+            }
+            if (bodyOffsetBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.bodyPosition = bodyOffsetBuffer.Value;
+                bodyOffsetBuffer = null;
+            }
+            if (legOffsetBuffer.HasValue)
+            {
+                drawInfo.drawPlayer.legPosition = legOffsetBuffer.Value;
+                legOffsetBuffer = null;
+            }
+            drawInfo.hidesBottomSkin = true;
             //Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(0, 0, 1920, 1017), Color.White);//new Rectangle(0, 800, 100, 217)
             //drawInfo.rotation = Main.GlobalTimeWrappedHourly * Main.GlobalTimeWrappedHourly;
             //drawInfo.rotationOrigin = (drawInfo.Center - drawInfo.Position);
@@ -913,8 +1258,15 @@ namespace OnThatSide
         //public ProjectorData cloneData;
         public override void ResetEffects()
         {
+            drawMouth = false;
             //Main.NewText((Main.mouseLeft, Main.mouseLeftRelease));
-
+            bool _flag = true;
+            foreach (var proj in Main.projectile)
+            {
+                if (proj.active && proj.type == ModContent.ProjectileType<DrawInterfaceProjectile>()) { _flag = false; break; }
+            }
+            if (_flag)
+                Projectile.NewProjectile(Player.GetSource_FromThis(), Player.Center, default, ModContent.ProjectileType<DrawInterfaceProjectile>(), 0, 0, Player.whoAmI);
             //if (Main.mouseLeft)
             //{
             //    var point = Main.MouseWorld.ToTileCoordinates();
@@ -1149,6 +1501,13 @@ namespace OnThatSide
             //Main.NewText($"Mp3Length差值:{mp3str.Position - position}");
         }
     }
+    public class OnThatSideSystem : ModSystem
+    {
+        public override void PostDrawInterface(SpriteBatch spriteBatch)
+        {
+            base.PostDrawInterface(spriteBatch);
+        }
+    }
     public class Disk : ModItem
     {
         public override void SetStaticDefaults()
@@ -1172,12 +1531,13 @@ namespace OnThatSide
                 //SubworldSystem.Enter<OnThatSideWorld>();
                 var animType = ModContent.ProjectileType<AnimationProjectile>();
                 bool flag = false;
+                Projectile anim = null;
                 foreach (var proj in Main.projectile)
                 {
                     if (proj.type == animType && proj.active)
                     {
                         proj.timeLeft = 12720 - OnThatSide.StartOffset;
-
+                        anim = proj;
                         flag = true;
                         break;
                     }
@@ -1185,7 +1545,8 @@ namespace OnThatSide
                 if (!flag)
                 {
                     player.Center = new Vector2(6520, 6587);
-                    Projectile.NewProjectileDirect(player.GetSource_ItemUse(Item), player.Center, default, animType, 0, 0, player.whoAmI).timeLeft = 12720 - OnThatSide.StartOffset;
+                    anim = Projectile.NewProjectileDirect(player.GetSource_ItemUse(Item), player.Center, default, animType, 0, 0, player.whoAmI);
+                    anim.timeLeft = 12720 - OnThatSide.StartOffset;
                 }
                 OnThatSide.positionBuffer = OnThatSide.UseRedArmyChoir ?
                 OnThatSide.StartOffset switch
@@ -1232,6 +1593,11 @@ namespace OnThatSide
                     10240 => 3429,
                     _ => 47250
                 };
+                //TODO: 张口切换
+                //if (anim.ModProjectile is AnimationProjectile animation) 
+                //{
+                //    animation.
+                //}
                 //Main.dayTime = true;
                 //Main.time = Main.dayLength * 0.875f;
             }
