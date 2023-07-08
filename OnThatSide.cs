@@ -22,11 +22,45 @@ using Terraria.Audio;
 using Microsoft.Xna.Framework.Audio;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Terraria.UI.Chat;
+using ReLogic.Graphics;
+using Terraria.GameInput;
+using Terraria.Graphics.Effects;
+using Terraria.UI;
+using Terraria.Graphics.Light;
+using ImproveGame.Common.Utils;
+using System.Reflection.Metadata;
 
 namespace OnThatSide
 {
     public static class Utils
     {
+        public static void GetScreenDrawArea(Vector2 screenPosition, Vector2 offSet, out int firstTileX, out int lastTileX, out int firstTileY, out int lastTileY)
+        {
+            firstTileX = (int)((screenPosition.X - offSet.X) / 16f - 1f);
+            lastTileX = (int)((screenPosition.X + (float)Main.screenWidth + offSet.X) / 16f) + 2;
+            firstTileY = (int)((screenPosition.Y - offSet.Y) / 16f - 1f);
+            lastTileY = (int)((screenPosition.Y + (float)Main.screenHeight + offSet.Y) / 16f) + 5;
+            if (firstTileX < 4)
+                firstTileX = 4;
+
+            if (lastTileX > Main.maxTilesX - 4)
+                lastTileX = Main.maxTilesX - 4;
+
+            if (firstTileY < 4)
+                firstTileY = 4;
+
+            if (lastTileY > Main.maxTilesY - 4)
+                lastTileY = Main.maxTilesY - 4;
+
+            if (Main.sectionManager.FrameSectionsLeft > 0)
+            {
+                TimeLogger.DetailedDrawReset();
+                WorldGen.SectionTileFrameWithCheck(firstTileX, firstTileY, lastTileX, lastTileY);
+                TimeLogger.DetailedDrawTime(5);
+            }
+        }
+
         public static Vector2 Multiply(this Vector2 v1, Vector2 v2) => v1 * v2;
         public static Vector2 Multiply(this Vector2 v1, float x = 1, float y = 1) => v1 * new Vector2(x, y);
         public static float Multiply(this float v1, float v2) => v1 * v2;
@@ -88,6 +122,7 @@ namespace OnThatSide
     }
     public class AnimationProjectile : ModProjectile
     {
+        public static int staticTimer;
         /// <summary>
         /// 持续时长,211秒//现修改为212秒
         /// </summary>
@@ -150,7 +185,12 @@ namespace OnThatSide
             Victor.sleeping.isSleeping = true;
             //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
             Victor.PlayerFrame();
-            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            var victorAngle = MathHelper.Pi / 3;
+            if (1260 < timer && timer <= 1310)
+            {
+                victorAngle -= (0.5f - MathF.Cos(MathHelper.TwoPi * (timer - 1260) / 50f) * 0.5f) * MathHelper.Pi / 12f;
+            }
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, victorAngle, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
             Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
             Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
 
@@ -164,6 +204,51 @@ namespace OnThatSide
             float angleOffset = MathF.Cos(timer / 60f * MathHelper.Pi) * MathHelper.Pi / 6;
             float angleOffset2 = MathF.Cos(timer / 45f * MathHelper.Pi) * MathHelper.Pi / 12;
             float angleOffset3 = MathF.Cos(timer / 75f * MathHelper.Pi) * MathHelper.Pi / 24;
+            var angleMin = MathHelper.Pi / 12;
+            if (820 < timer && timer <= 940)
+            {
+                var angleMax = -MathHelper.Pi / 12;
+
+                float angle;
+                if (timer < 850)
+                {
+                    angle = MathHelper.SmoothStep(angleMin, angleMax, (timer - 820) / 30f);
+                }
+                else if (timer < 910)
+                {
+                    angle = angleMax;
+                }
+                else
+                {
+                    angle = MathHelper.SmoothStep(angleMax, angleMin, (timer - 910) / 30f);
+                }
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+
+            }
+            else if (2120 < timer && timer <= 2240)
+            {
+                var angleMax = -MathHelper.Pi / 12;
+
+                float angle;
+                if (timer < 2150)
+                {
+                    angle = MathHelper.SmoothStep(angleMin, angleMax, (timer - 2120) / 30f);
+                }
+                else if (timer < 2210)
+                {
+                    angle = angleMax;
+                }
+                else
+                {
+                    angle = MathHelper.SmoothStep(angleMax, angleMin, (timer - 2210) / 30f);
+                }
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+
+            }
+            else
+            {
+                Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angleMin);
+            }
 
             Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.ThreeQuarters, MathHelper.PiOver2 + angleOffset + angleOffset2 + angleOffset3);
             Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.PiOver2 - MathHelper.Pi / 6 - angleOffset3);
@@ -195,7 +280,12 @@ namespace OnThatSide
             Victor.sleeping.isSleeping = true;
             //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
             Victor.PlayerFrame();
-            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            var headAngle = MathHelper.Pi / 3;
+            if (Timer > 3230)
+            {
+                headAngle = MathHelper.SmoothStep(MathHelper.Pi / 3, MathHelper.Pi / 2, Terraria.Utils.GetLerpValue(3230, 3260, Timer, true));
+            }
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, headAngle, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
             Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
             Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
 
@@ -255,7 +345,7 @@ namespace OnThatSide
                     fullRot = MathHelper.Lerp(-MathHelper.PiOver2, 0, armFac);
 
                     Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(fullRot,
-                        MathHelper.Lerp(MathHelper.Pi / 3 * 2, 0, armFac), Vector2.Lerp(new Vector2(6, -10), default, armFac),
+                        MathHelper.Lerp(MathHelper.Pi / 3 * 2, MathHelper.Pi / 12, armFac), Vector2.Lerp(new Vector2(6, -10), default, armFac),
                         -fullRot, Vector2.Lerp(new Vector2(-2, -12), default, armFac),
                         null, Vector2.Lerp(new Vector2(-12, 0), default, armFac * armFac * armFac * armFac));
                     //Main.NewText("2.5");
@@ -315,7 +405,24 @@ namespace OnThatSide
             Victor.sleeping.isSleeping = true;
             //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
             Victor.PlayerFrame();
-            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            //3900-4200
+            var angleMax = MathHelper.Pi / 4;
+            var angleMin = MathHelper.Pi / 2;
+            float angle;
+            if (Timer < 3960)
+            {
+                angle = MathHelper.SmoothStep(angleMin, angleMax, (Timer - 3900) / 60f);
+            }
+            else if (Timer < 4170)
+            {
+                angle = angleMax;
+            }
+            else
+            {
+                angle = MathHelper.SmoothStep(angleMax, angleMin, (Timer - 4170) / 30f);
+            }
+
+            Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, angle, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
             Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
             Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
 
@@ -326,7 +433,20 @@ namespace OnThatSide
             Anton.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 6);
             Anton.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
             Anton.direction = 1;
-            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+            angleMin = MathHelper.Pi / 3;
+            if (Timer < 3990)
+            {
+                angle = MathHelper.SmoothStep(angleMin, angleMax, (Timer - 3930) / 60f);
+            }
+            else if (Timer < 4200)
+            {
+                angle = angleMax;
+            }
+            else
+            {
+                angle = MathHelper.SmoothStep(angleMax, angleMin, (Timer - 4200) / 30f);
+            }
+            Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, angle, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
             Main.PlayerRenderer.DrawPlayer(Main.Camera, Anton, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
             #endregion
         }
@@ -355,7 +475,7 @@ namespace OnThatSide
                 Victor.sleeping.isSleeping = true;
                 //Victor.GetModPlayer<OnThatSidePlayer>().drawMouth = true;
                 Victor.PlayerFrame();
-                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 2, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
                 Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
                 Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6);
                 Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
@@ -369,7 +489,7 @@ namespace OnThatSide
                 //MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0)
                 float smoothFac = MathHelper.SmoothStep(0, 1, fac);
                 Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(MathHelper.PiOver2,
-                    MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 3 * 2, smoothFac), Vector2.Lerp(new Vector2(-2, -14), new Vector2(6, -16), smoothFac),
+                    MathHelper.Lerp(MathHelper.Pi / 2, MathHelper.Pi / 3 * 2, smoothFac), Vector2.Lerp(new Vector2(-2, -14), new Vector2(6, -16), smoothFac),
                     MathHelper.Lerp(MathHelper.Pi / 3, MathHelper.Pi / 2, smoothFac), Vector2.Lerp(new Vector2(-6, -10), new Vector2(-2, -14), smoothFac),
                     null, new Vector2(-12, 0));
                 //Victor.compositeFrontArm.enabled = true;
@@ -453,7 +573,7 @@ namespace OnThatSide
                 Anton.direction = 1;
                 Anton.GetModPlayer<OnThatSidePlayer>().FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(-2, -14), MathHelper.Pi / 3, new Vector2(-6, -10), null, new Vector2(-12, 0));
             }
-            else if (timer < 480)
+            else if (timer < 540)
             {
                 if (timer < 420)
                 {
@@ -462,8 +582,8 @@ namespace OnThatSide
                 }
                 else
                 {
-                    Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, MathHelper.Pi / 6 * 5f, 0.025f);
-                    Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, MathHelper.Pi / 6 * 5f, 0.025f);
+                    Anton.compositeFrontArm.rotation = MathHelper.Lerp(Anton.compositeFrontArm.rotation, MathHelper.Pi / 6 * 5f, 0.035f);
+                    Anton.compositeBackArm.rotation = MathHelper.Lerp(Anton.compositeBackArm.rotation, MathHelper.Pi / 6 * 5f, 0.035f);
                 }
                 Anton.direction = 1;
                 var fac = MathHelper.SmoothStep(0, 1, (timer - 360) / 120f);
@@ -577,6 +697,105 @@ namespace OnThatSide
 
             #region 绘制内容
             int offCen = 590;
+            //*抬头
+            if (Timer > 7660 && Timer < 8030)
+            {
+                float angle = 0f;
+                if (Timer < 7690)
+                {
+                    angle = MathHelper.SmoothStep(0, -MathHelper.Pi / 12, (Timer - 7660) / 30f);
+                }
+                else if (Timer < 8000)
+                {
+                    angle = -MathHelper.Pi / 12;
+                }
+                else
+                {
+
+                    angle = MathHelper.SmoothStep(-MathHelper.Pi / 12, 0, (Timer - 8000) / 30f);
+                }
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //共产主义终会到来
+            if (Timer > 8395 && Timer < 8425)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(8395, 8425, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 12;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //现在的时代终将过去
+            if (Timer > 8500 && Timer < 8620)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(8500, 8620, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= -MathHelper.Pi / 24 * MathF.Sin(_fac * MathHelper.TwoPi * 6);
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //我们一起见证它的结束不好吗
+            if (Timer > 8890 && Timer < 8950)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(8890, 8950, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //18
+            if (Timer > 9000 && Timer < 9060)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9000, 9060, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //19
+            if (Timer > 9100 && Timer < 9160)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9100, 9160, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //20
+            if (Timer > 9180 && Timer < 9240)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9180, 9200, Timer) % 1;
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //嘿嘿嘿嘿嘿
+            if (Timer > 9535 && Timer < 9595)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9535, 9595, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= -MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //你好啊
+            if (Timer > 9630 && Timer < 9690)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9630, 9690, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= -MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //向你问好！
+            if (Timer > 9790 && Timer < 9900)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9790, 9900, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24 * MathF.Sin(_fac * MathHelper.TwoPi * 4);
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
+            //你说呢？
+            if (Timer > 9910 && Timer < 9950)
+            {
+                var _fac = Terraria.Utils.GetLerpValue(9910, 9950, Timer);
+                float angle = (0.5f - 0.5f * MathF.Cos(MathHelper.TwoPi * _fac));
+                angle *= MathHelper.Pi / 24;
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, angle);
+            }
             if (timer < offCen)
             {
                 Victor.direction = -1;
@@ -596,9 +815,20 @@ namespace OnThatSide
                 Victor.velocity = default;
                 Victor.PlayerFrame();
                 Victor.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3 * 2 * MathHelper.SmoothStep(0, 1, (timer - offCen - 60) / 30f));
-                if (timer - offCen == 90)
+                if (timer - offCen >= 90)
                     Victor.sitting.isSitting = true;
-                Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * MathHelper.SmoothStep(0, 1, (timer - offCen - 90) / 30f));
+                if (timer - offCen - 90 <= 30)
+                    Victor.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 6 * MathHelper.SmoothStep(0, 1, (timer - offCen - 90) / 30f));
+                else
+                {
+                    var angle = 0f;
+                    if (Timer > 8289 && Timer < 8409)
+                    {
+                        angle = -2 * MathHelper.Pi / 3;
+                    }
+                    else angle = MathHelper.Pi / 6;
+                    Victor.compositeFrontArm.rotation = MathHelper.Lerp(Victor.compositeFrontArm.rotation, angle, 0.05f);
+                }
 
                 Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 21));
             }
@@ -626,6 +856,8 @@ namespace OnThatSide
             #endregion
 
             #region 绘制内容
+            if (Timer > 11040)
+                Victor.GetModPlayer<OnThatSidePlayer>().FastVisualSet(0, MathF.Sin((Timer - 11040) / 40f * MathHelper.TwoPi) * MathHelper.Pi / 36);
             Main.PlayerRenderer.DrawPlayer(Main.Camera, Victor, center + new Vector2(-16, 0), 0, new Vector2(10, 21));
 
             Anton.GetModPlayer<OnThatSidePlayer>().FastVisualDefault();
@@ -654,11 +886,70 @@ namespace OnThatSide
             Victor.hair = 1;
             Victor.PlayerFrame();
         }
-        Player Anton;
-        Player Victor;
+        public Player Anton;
+        public Player Victor;
         public override string Texture => "Terraria/Images/Item_1";
         public override bool PreDraw(ref Color lightColor)
         {
+            //#region 画作绘制
+            //Vector2 unscaledPosition = Main.Camera.UnscaledPosition;
+            //Vector2 vector = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //var spriteBatch = Main.spriteBatch;
+            //RenderTarget2D render = (Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D);
+            //var origin = new Vector2(960, 540);//(Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D).Size() * .5f
+            //var scaler = (render.GetHashCode() == Main.screenTarget.GetHashCode()) ? Main.GameZoomTarget : 1;
+            ////Main.NewText((render.GetHashCode(), Main.screenTarget.GetHashCode()));
+            //var tileCen = new Vector2(4076.9375f, 160) * 16;
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Matrix.Identity);
+            //for (int j = 3929; j < 4277; j++)
+            //{
+            //    for (int i = 148; i < 163; i++)
+            //    {
+            //        Tile tile = Main.tile[j, i];
+            //        ushort type = tile.TileType;
+            //        short frameX = tile.TileFrameX;
+            //        short frameY = tile.TileFrameY;
+            //        if (frameX != 0) continue;
+            //        if (frameY != 0) continue;
+            //        Vector2 zero = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //        if (Main.drawToScreen)
+            //        {
+            //            zero = Vector2.Zero;
+            //        }
+            //        zero = default;
+
+            //        Color color = Lighting.GetColor((new Vector2(j, i) * 16 - tileCen + Main.LocalPlayer.Center).ToTileCoordinates());
+            //        if (type == ModContent.TileType<Leader2>())
+            //        {
+            //            var cen = new Vector2(j + 2f, i + 2.5f) * 16 - Main.screenPosition + zero + new Vector2(0, 2) - tileCen + Main.LocalPlayer.Center - new Vector2(0,240);
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 68) * scaler);
+            //            var sRectangle = new Rectangle(0, 0, 532, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 80) * scaler), color);
+            //        }
+            //        else if (type == ModContent.TileType<Leader>())
+            //        {
+            //            var cen = new Vector2(j + 1f, i + 1.5f) * 16 - Main.screenPosition + zero - tileCen + Main.LocalPlayer.Center - new Vector2(0, 240);
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 42) * scaler);
+            //            var sRectangle = new Rectangle(45, 0, 443, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 48) * scaler), color);
+            //        }
+
+
+            //    }
+            //}
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            //#endregion
+
+            #region 主体绘制
             //if (Main.mouseLeft) Main.NewText(Timer);
             var player = Main.player[Projectile.owner];
             var factor = Timer / (float)MaxTime;
@@ -705,6 +996,8 @@ namespace OnThatSide
 
             //}
 
+            #endregion
+            #region 车轮
             for (int n = -7; n <= 8; n++)
             {
                 //Vector2 wheelCen = new Vector2(960 + 17 * 16 * n, 520) - OnThatSidePlayer.screenOffsetor;
@@ -722,24 +1015,12 @@ namespace OnThatSide
 
 
             }
+            #endregion
             return false;
         }
-        public override void AI()
-        {
-            //Main.moonType = 1;
-            var player = Main.player[Projectile.owner];
-            var factor = Timer / (float)MaxTime;
-            Projectile.Center = player.Center = new Vector2(MathHelper.Lerp(6520, 124680, factor * factor), 6587);
-            //if (new int[] { 0, 2320, 3340, 4420, 5500, 6100, 6640, 7420, 10240 }.Contains(Timer))
-            //{
-            //    Main.NewText((Main.time.ToString("0"), Main.dayTime));
-            //    OnThatSide.showPosition = true;
-            //}
-            //Main.NewText(Main.ColorOfTheSkies);
-            //Projectile.hide = false;
-            //if (!(Main.mouseLeft ^ Main.mouseLeftRelease)) Main.NewText((Main.mouseLeft ? "张口" : "闭口") + Timer, Main.mouseLeft ? Color.Red : Color.Blue);
-            int[] victorMouthKey = new int[]
-            {
+
+        public static int[] victorMouthKey = new int[]
+{
                 189,221,
                 289,361,
                 416,462,
@@ -785,9 +1066,9 @@ namespace OnThatSide
                 9735,9755,
                 9752,9809,
                 9950,9976
-            };
-            int[] sharedMouthKey = new int[]
-            {
+};
+        public static int[] sharedMouthKey = new int[]
+        {
 
                 1377,1393,
                 1413,1430,
@@ -990,9 +1271,9 @@ namespace OnThatSide
                 12575,12598,
                 12609,12623,
                 12639,12684,
-            };
-            int[] antonMouthKey = new int[]
-            {
+        };
+        public static int[] antonMouthKey = new int[]
+        {
                 7654,7659,
                 7686,7701,
                 7779,7855,
@@ -1001,7 +1282,23 @@ namespace OnThatSide
 
                 10018,10058,
                 10126,10257
-            };
+        };
+        public override void AI()
+        {
+            staticTimer = Timer;
+            //Main.moonType = 1;
+            var player = Main.player[Projectile.owner];
+            var factor = Timer / (float)MaxTime;
+            Projectile.Center = player.Center = new Vector2(MathHelper.Lerp(6520, 124680, factor * factor), 6587);
+            //if (new int[] { 0, 2320, 3340, 4420, 5500, 6100, 6640, 7420, 10240 }.Contains(Timer))
+            //{
+            //    Main.NewText((Main.time.ToString("0"), Main.dayTime));
+            //    OnThatSide.showPosition = true;
+            //}
+            //Main.NewText(Main.ColorOfTheSkies);
+            //Projectile.hide = false;
+            if (!(Main.mouseLeft ^ Main.mouseLeftRelease)) Main.NewText((Main.mouseLeft ? "张口" : "闭口") + Timer, Main.mouseLeft ? Color.Red : Color.Blue);
+
             if (victorMouthKey.Contains(Timer))
             {
                 Victor.GetModPlayer<OnThatSidePlayer>().drawMouth ^= true;
@@ -1030,6 +1327,8 @@ namespace OnThatSide
         public Player drawPlayer;
         public override void SetDefaults()
         {
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 144000;
+
             drawPlayer = new Player();
             drawPlayer.hair = 19;
             drawPlayer.hairColor = new Color(86, 68, 17);
@@ -1040,7 +1339,7 @@ namespace OnThatSide
             drawPlayer.skinColor = new Color(255, 125, 90);
             drawPlayer.underShirtColor = new Color(71, 94, 71);
             drawPlayer.PlayerFrame();
-            Projectile.hide = true;
+            //Projectile.hide = true;
             base.SetDefaults();
         }
         public override void AI()
@@ -1055,35 +1354,157 @@ namespace OnThatSide
         }
         public override bool PreDraw(ref Color lightColor)
         {
-            Vector2 center = new Vector2(64758, 2539 - 22);
-            var mplr = drawPlayer.GetModPlayer<OnThatSidePlayer>();
-            drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
-            drawPlayer.direction = 1;
-            mplr.drawMouth = true;
-            mplr.FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
+            //Vector2 center = new Vector2(64758, 2539 - 22);
+            //var mplr = drawPlayer.GetModPlayer<OnThatSidePlayer>();
+            //drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, MathHelper.Pi / 3);
+            //drawPlayer.direction = 1;
+            //mplr.drawMouth = true;
+            //mplr.FastVisualSet(-MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
+            //Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(33, 2), -MathHelper.PiOver2, new Vector2(10, 21));
 
-            //mplr.headRotationBuffer = -MathHelper.Pi / 3;
-            //mplr.bodyRotationBuffer = -MathHelper.Pi / 3;
-            //mplr.headOffsetBuffer = new Vector2(-4, -14).RotatedBy(-MathHelper.PiOver2);
+            ////mplr.headRotationBuffer = -MathHelper.Pi / 3;
+            ////mplr.bodyRotationBuffer = -MathHelper.Pi / 3;
+            ////mplr.headOffsetBuffer = new Vector2(-4, -14).RotatedBy(-MathHelper.PiOver2);
 
-            //mplr.bodyOffsetBuffer = new Vector2(0, -10).RotatedBy(-MathHelper.PiOver2);
-            //mplr.legOffsetBuffer = new Vector2(6, 0).RotatedBy(-MathHelper.PiOver2);
+            ////mplr.bodyOffsetBuffer = new Vector2(0, -10).RotatedBy(-MathHelper.PiOver2);
+            ////mplr.legOffsetBuffer = new Vector2(6, 0).RotatedBy(-MathHelper.PiOver2);
 
-            drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
-            drawPlayer.direction = -1;
-            mplr.FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
-            Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
+            //drawPlayer.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, -MathHelper.Pi / 3);
+            //drawPlayer.direction = -1;
+            //mplr.FastVisualSet(MathHelper.PiOver2, MathHelper.Pi / 3, new Vector2(4, -14), MathHelper.Pi / 3, new Vector2(0, -10), null, new Vector2(-6, 0));
+            //Main.PlayerRenderer.DrawPlayer(Main.Camera, drawPlayer, center + new Vector2(-33, 2), MathHelper.PiOver2, new Vector2(10, 21));
+            //if (drawBuffer)
+            //{
+            //    drawBuffer = false;
+            //}
+            //else
+            //{
+            //    AnimationProjectile.TextDraw(Main.spriteBatch);
 
+            //}
+            //Main.NewText(Main.GlobalTimeWrappedHourly);
             return false;
         }
         public override void PostDraw(Color lightColor)
         {
+            //#region MyRegion
+            //Vector2 unscaledPosition = Main.Camera.UnscaledPosition;
+            //Vector2 vector = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //Utils.GetScreenDrawArea(unscaledPosition, vector + (Main.Camera.UnscaledPosition - Main.Camera.ScaledPosition), out int firstTileX, out int lastTileX, out int firstTileY, out int lastTileY);
+            //var spriteBatch = Main.spriteBatch;
+            //RenderTarget2D render = (Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D);
+            //var origin = new Vector2(960, 540);//(Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D).Size() * .5f
+            ////var scaler = (render.GetHashCode() == Main.screenTarget.GetHashCode()) ? Main.GameZoomTarget : 1;
+            //var scaler = Main.GameZoomTarget;
+            ////Main.NewText((render.GetHashCode(), Main.screenTarget.GetHashCode()));
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Matrix.Identity);
+            //for (int j = firstTileX - 2; j < lastTileX + 2; j++)
+            //{
+            //    for (int i = firstTileY; i < lastTileY + 4; i++)
+            //    {
+            //        Tile tile = Main.tile[j, i];
+            //        ushort type = tile.TileType;
+            //        short frameX = tile.TileFrameX;
+            //        short frameY = tile.TileFrameY;
+            //        if (frameX != 0) continue;
+            //        if (frameY != 0) continue;
+            //        Vector2 zero = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //        if (Main.drawToScreen)
+            //        {
+            //            zero = Vector2.Zero;
+            //        }
+            //        zero = default;
+            //        Color color = Lighting.GetColor(j, i);
+            //        if (type == ModContent.TileType<Leader2>())
+            //        {
+            //            var cen = new Vector2(j + 2f, i + 2.5f) * 16 - Main.screenPosition + zero + new Vector2(0, 2);
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 68) * scaler);
+            //            var sRectangle = new Rectangle(0, 0, 532, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 80) * scaler), color);
+            //        }
+            //        else if (type == ModContent.TileType<Leader>())
+            //        {
+            //            var cen = new Vector2(j + 1f, i + 1.5f) * 16 - Main.screenPosition + zero;
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 42) * scaler);
+            //            var sRectangle = new Rectangle(45, 0, 443, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 48) * scaler), color);
+            //        }
+
+
+            //    }
+            //}
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            //#endregion
+
+            //Vector2 unscaledPosition = Main.Camera.UnscaledPosition;
+            //Vector2 vector = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //var spriteBatch = Main.spriteBatch;
+            //RenderTarget2D render = (Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D);
+            //var origin = new Vector2(960, 540);//(Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D).Size() * .5f
+            //var scaler = (render.GetHashCode() == Main.screenTarget.GetHashCode()) ? Main.GameZoomTarget : 1;
+            ////Main.NewText((render.GetHashCode(), Main.screenTarget.GetHashCode()));
+            //var tileCen = new Vector2(4080, 160) * 16;
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Matrix.Identity);
+            //for (int j = 3929; j < 4277; j++)
+            //{
+            //    for (int i = 148; i < 163; i++)
+            //    {
+            //        Tile tile = Main.tile[j, i];
+            //        ushort type = tile.TileType;
+            //        short frameX = tile.TileFrameX;
+            //        short frameY = tile.TileFrameY;
+            //        if (frameX != 0) continue;
+            //        if (frameY != 0) continue;
+            //        Vector2 zero = new Vector2(Main.offScreenRange, Main.offScreenRange);
+            //        if (Main.drawToScreen)
+            //        {
+            //            zero = Vector2.Zero;
+            //        }
+            //        zero = default;
+
+            //        Color color = Lighting.GetColor(j, i);
+            //        if (type == ModContent.TileType<Leader2>())
+            //        {
+            //            var cen = new Vector2(j + 2f, i + 2.5f) * 16 - Main.screenPosition + zero + new Vector2(0, 2) - tileCen + Main.LocalPlayer.Center;
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 68) * scaler);
+            //            var sRectangle = new Rectangle(0, 0, 532, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(64, 80) * scaler), color);
+            //        }
+            //        else if (type == ModContent.TileType<Leader>())
+            //        {
+            //            var cen = new Vector2(j + 1f, i + 1.5f) * 16 - Main.screenPosition + zero - tileCen + Main.LocalPlayer.Center;
+            //            //var origin = new Vector2(960, 540);
+            //            cen = (cen - origin) * scaler + origin;
+            //            var drectangle = Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 42) * scaler);
+            //            var sRectangle = new Rectangle(45, 0, 443, 566);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/Lenin").Value, drectangle, sRectangle, color);
+            //            spriteBatch.Draw(ModContent.Request<Texture2D>("OnThatSide/WoodFrame2").Value, Terraria.Utils.CenteredRectangle(cen, new Vector2(32, 48) * scaler), color);
+            //        }
+
+
+            //    }
+            //}
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             base.PostDraw(lightColor);
         }
         public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
         {
-            overPlayers.Add(index);
+            //overWiresUI.Add(index);
             base.DrawBehind(index, behindNPCsAndTiles, behindNPCs, behindProjectiles, overPlayers, overWiresUI);
         }
     }
@@ -1091,10 +1512,10 @@ namespace OnThatSide
     {
         public override bool IsBiomeActive(Player player)
         {
-            return player.ownedProjectileCounts[ModContent.ProjectileType<AnimationProjectile>()] > 0;
+            return true;
         }
         public override SceneEffectPriority Priority => SceneEffectPriority.BiomeHigh;
-        public override int Music => MusicLoader.GetMusicSlot(Mod, "Music/YoungPeoplesMarch" + (OnThatSide.UseRedArmyChoir ? "_TheRedArmyChoir" : ""));
+        public override int Music => Main.LocalPlayer.ownedProjectileCounts[ModContent.ProjectileType<AnimationProjectile>()] > 0 ? MusicLoader.GetMusicSlot(Mod, "Music/YoungPeoplesMarch" + (OnThatSide.UseRedArmyChoir ? "_TheRedArmyChoir" : "")) : 0;
     }
     /// <summary>
     /// 
@@ -1135,7 +1556,10 @@ namespace OnThatSide
     }
     public class OnThatSidePlayer : ModPlayer
     {
-
+        public override void Load()
+        {
+            //SkyManager.Instance["OnThatSide:OnThatSideSky"] = new OnThatSideSky();
+        }
         //public static void BuildSingleRoom(Point leftDown)
         //{
 
@@ -1270,13 +1694,7 @@ namespace OnThatSide
             //if (Main.mouseLeft)
             //{
             //    var point = Main.MouseWorld.ToTileCoordinates();
-            //Main.NewText((Main.tile[point], point));
-            //for (int n = 0; n < Main.maxTilesX; n++)
-            //{
-            //    var tile = Main.tile[new Point(n, 216)];
-            //    tile.HasTile = false;
-            //    tile.WallType = 0;
-            //}
+            //    Main.NewText((Main.tile[point], point));
             //if (TileEntity.ByPosition.TryGetValue(new Point16(point), out TileEntity entity) && entity is ProjectorTileEntity projEntity)
             //{
             //    //if (cloneData != null)
@@ -1412,10 +1830,11 @@ namespace OnThatSide
             //}
             //Main.NewText(Player.HeldItem.type);
             //Main.NewText((Player.pantsColor, Player.shirtColor, Player.shoeColor, Player.skinColor, Player.underShirtColor));
+
             var flag = false;
             foreach (var proj in Main.projectile)
             {
-                if (proj.type == ModContent.ProjectileType<AnimationProjectile>())
+                if (proj.type == ModContent.ProjectileType<AnimationProjectile>() && proj.active)
                 {
                     flag = true; break;
                 }
@@ -1425,6 +1844,18 @@ namespace OnThatSide
                 foreach (var proj in Main.projectile) { if (proj.type == ProjectileID.FallingStarSpawner && proj.active) proj.Kill(); }
                 foreach (var item in Main.item) { if (item.type == ItemID.FallenStar && item.active) item.TurnToAir(); }
             }
+            OnThatSideSystem.animationPlaying = flag;
+
+            //if (!OnThatSideSky.SkyActive && flag)
+            //{
+            //    SkyManager.Instance.Activate("OnThatSide:OnThatSideSky");
+            //    OnThatSideSky.SkyActive = true;
+            //}
+            //if (OnThatSideSky.SkyActive && !flag)
+            //{
+            //    SkyManager.Instance.Deactivate("OnThatSide:OnThatSideSky");
+            //    OnThatSideSky.SkyActive = false;
+            //}
             //screenOffsetor = default;
             //zoomTarget = 1f;
             //drawMouth = true;
@@ -1452,8 +1883,16 @@ namespace OnThatSide
         public override void Load()
         {
             On.Terraria.Audio.MP3AudioTrack.ReadAheadPutAChunkIntoTheBuffer += MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer;
+            On.Terraria.Main.DoDraw += Main_DoDraw;
             base.Load();
         }
+
+        private void Main_DoDraw(On.Terraria.Main.orig_DoDraw orig, Main self, GameTime gameTime)
+        {
+            orig.Invoke(self, gameTime);
+
+        }
+
         public static bool UseRedArmyChoir => false;
         public static bool showPosition;
         public static long? positionBuffer;
@@ -1503,9 +1942,275 @@ namespace OnThatSide
     }
     public class OnThatSideSystem : ModSystem
     {
-        public override void PostDrawInterface(SpriteBatch spriteBatch)
+        public override void Load()
         {
-            base.PostDrawInterface(spriteBatch);
+            Main.OnPostDraw += CaptionsDraw;
+            base.Load();
+        }
+        public override void Unload()
+        {
+            Main.OnPostDraw -= CaptionsDraw;
+            base.Unload();
+        }
+        public static void CaptionsDraw(GameTime gameTime)
+        {
+            if (animationPlaying)
+            {
+                MainCaptions();
+                CharCaptions();
+            }
+        }
+        public static bool animationPlaying;
+        public static float alphaMain;
+        public static void MainCaptions()
+        {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            #region 文本获取
+            string str = "";
+            int[] textKey = new int[]
+            {
+                180,355,
+                418,623,
+
+                768,1033,
+                1081,1338,
+                1377,1653,
+                1686,1925,
+                1995,2267,
+                2307,2567,
+                2613,2889,
+                2920,3154,
+
+                3232,3496,
+                3533,3769,
+                3798,4041,
+                4069,4315,
+                4354,4597,
+                4626,4871,
+                4907,5173,
+                5202,5447,
+
+                5644,5913,
+                5930,6172,
+                6211,6462,
+                6489,6717,
+                6772,7032,
+                7060,7301,
+                7336,7588,
+                7626,7847,
+
+                8041,8300,
+                8332,8570,
+                8599,8861,
+                8882,9125,
+                9160,9429,
+                9456,9713,
+                9742,10007,
+                10037,10270,
+
+                10471,10725,
+                10759,11007,
+                11040,11298,
+                11327,11576,
+                11610,11875,
+                11903,12157,
+                12196,12457,
+                12491,12684
+            };
+            string[] texts = new string[]
+            {
+                "你还记得河边悬崖上",
+                "燃烧的篝火旁同志们唱的歌吗？",
+
+                "时刻挂在我们心上",
+                "是一个平凡的愿望",
+                "愿亲爱的家乡美好",
+                "愿祖国呀万年长",
+                "听，风雪喧嚷",
+                "看，流星在飞翔",
+                "我心向我呼唤",
+                "去动荡的远方",
+
+                "哪怕灾殃接着灾殃",
+                "也不能叫我们颓唐",
+                "让我们来结成朋友",
+                "我们永远有力量",
+                "听，风雪喧嚷",
+                "看，流星在飞翔",
+                "我心向我呼唤",
+                "去动荡的远方",
+
+                "只要我还能够行走",
+                "只要我还能够张望",
+                "只要我还能够呼吸",
+                "就一直走向前方",
+                "听，风雪喧嚷",
+                "看，流星在飞翔",
+                "我心向我呼唤",
+                "去动荡的远方",
+
+                "我们从不需要平静",
+                "这样的命运很美好",
+                "你手中紧握着火焰",
+                "用呼吸融化寒冰",
+                "听，风雪喧嚷",
+                "看，流星在飞翔",
+                "我心向我呼唤",
+                "去动荡的远方",
+
+                "就像每个青年一样",
+                "你也会遇见个姑娘",
+                "她将和你一路前往",
+                "勇敢穿过风和浪",
+                "听，风雪喧嚷",
+                "看，流星在飞翔",
+                "我心向我呼唤",
+                "去动荡的远方",
+            };
+
+            var timer = AnimationProjectile.staticTimer;
+            if (timer < textKey[0]) return;
+
+            for (int n = 0; n < textKey.Length / 2; n++)
+            {
+                if (AnimationProjectile.staticTimer > textKey[2 * n] && AnimationProjectile.staticTimer < textKey[2 * n + 1])
+                {
+                    str = texts[n];
+                    //alpha = MathHelper.Lerp(alpha, 1, 0.05f);
+                    var fac = Terraria.Utils.GetLerpValue(textKey[2 * n], textKey[2 * n + 1], AnimationProjectile.staticTimer, true);
+                    if (fac <= 0.1f)
+                    {
+                        alphaMain = MathHelper.SmoothStep(0, 1, fac * 10);
+                    }
+                    else if (fac >= 0.9f)
+                    {
+                        alphaMain = MathHelper.SmoothStep(1, 0, fac * 10 - 9);
+                    }
+                    else
+                    {
+                        alphaMain = 1;
+                    }
+                    break;
+                }
+            }
+            //if (str == "") { alpha = MathHelper.Lerp(alpha, 0, 0.05f); return; }
+            #endregion
+
+            #region 文本绘制
+            DynamicSpriteFont font = FontAssets.DeathText.Value;
+            Vector2 vec = font.MeasureString(str);
+            var gd = Main.graphics.GraphicsDevice;
+            var blend = gd.BlendState;
+            var sampler = gd.SamplerStates[0];
+            var depth = gd.DepthStencilState;
+            var rasterizer = gd.RasterizerState;
+            //spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.AnisotropicClamp, depth, rasterizer, null, Main.UIScaleMatrix);
+            var scaler = new Vector2(Main.screenWidth * .5f, Main.screenHeight) / new Vector2(960, 1080);
+            ChatManager.DrawColorCodedStringWithShadow(spriteBatch, font, str, scaler * new Vector2(960, 1024), Color.White * alphaMain, Color.Cyan * alphaMain, 0, vec * .5f, new Vector2(2) * scaler, -1, MathHelper.Lerp(8, 2, alphaMain));
+            spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, blend, sampler, depth, rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            #endregion
+        }
+        public static float alphaChar;
+        public static void CharCaptions()
+        {
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            #region 文本获取
+            string str = "";
+            int[] textKey = new int[]
+            {
+                7651,7712,
+                7779,8033,
+
+                8131,8207,
+                8261,8446,
+                8502,8582,
+                8652,8987,
+                9008,9063,
+                9106,9168,
+                9202,9251,
+                9299,9360,
+                9390,9494,
+                9549,9621,
+                9658,9717,
+                9739,9817,
+                9935,9965,
+
+                10015,10086,
+                10122,10256,
+
+            };
+            string[] texts = new string[]
+            {
+                "维克多",
+                "你愿意生活在现在还是共产主义时代？",
+
+                "当然是现在",
+                "因为共产主义终将到来并且会延续下去",
+                "现在的时代终将过去",
+                "我们一起见证它的结束不是很好吗？",
+                "经过十八世纪",
+                "十九世纪",
+                "已经二十世纪了",
+                "我们可以站在时代的门前",
+                "向新时代问候了",
+                "嘿嘿嘿嘿嘿！",
+                "你好啊",
+                "向你问好！",
+                "你说呢？",
+
+                "你是一个浪漫的人",
+                "而我是一个谨慎的人"
+            };
+
+            var timer = AnimationProjectile.staticTimer;
+            if (timer < textKey[0]) return;
+
+            for (int n = 0; n < textKey.Length / 2; n++)
+            {
+                if (AnimationProjectile.staticTimer > textKey[2 * n] && AnimationProjectile.staticTimer < textKey[2 * n + 1])
+                {
+                    str = texts[n];
+                    //alpha = MathHelper.Lerp(alpha, 1, 0.05f);
+                    var fac = Terraria.Utils.GetLerpValue(textKey[2 * n], textKey[2 * n + 1], AnimationProjectile.staticTimer, true);
+                    if (fac <= 0.1f)
+                    {
+                        alphaChar = MathHelper.SmoothStep(0, 1, fac * 10);
+                    }
+                    else if (fac >= 0.9f)
+                    {
+                        alphaChar = MathHelper.SmoothStep(1, 0, fac * 10 - 9);
+                    }
+                    else
+                    {
+                        alphaChar = 1;
+                    }
+                    break;
+                }
+            }
+            //if (str == "") { alpha = MathHelper.Lerp(alpha, 0, 0.05f); return; }
+            if (str != "")
+            {
+                str = $"“{str}”";
+            }
+            #endregion
+
+            #region 文本绘制
+            DynamicSpriteFont font = FontAssets.DeathText.Value;
+            Vector2 vec = font.MeasureString(str);
+            var gd = Main.graphics.GraphicsDevice;
+            var blend = gd.BlendState;
+            var sampler = gd.SamplerStates[0];
+            var depth = gd.DepthStencilState;
+            var rasterizer = gd.RasterizerState;
+            //spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.AnisotropicClamp, depth, rasterizer, null, Main.UIScaleMatrix);
+            var scaler = new Vector2(Main.screenWidth * .5f, Main.screenHeight) / new Vector2(960, 1080);
+            ChatManager.DrawColorCodedStringWithShadow(spriteBatch, font, str, scaler * new Vector2(960, 144), Color.White * alphaChar, Color.Red * alphaChar, 0, vec * .5f, new Vector2(2) * scaler, -1, MathHelper.Lerp(8, 2, alphaChar));
+            spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, blend, sampler, depth, rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            #endregion
         }
     }
     public class Disk : ModItem
@@ -1593,11 +2298,25 @@ namespace OnThatSide
                     10240 => 3429,
                     _ => 47250
                 };
-                //TODO: 张口切换
-                //if (anim.ModProjectile is AnimationProjectile animation) 
-                //{
-                //    animation.
-                //}
+                if (anim.ModProjectile is AnimationProjectile animation)
+                {
+                    for (int n = 0; n < OnThatSide.StartOffset; n++)
+                    {
+                        if (AnimationProjectile.victorMouthKey.Contains(n))
+                        {
+                            animation.Victor.GetModPlayer<OnThatSidePlayer>().drawMouth ^= true;
+                        }
+                        if (AnimationProjectile.antonMouthKey.Contains(n))
+                        {
+                            animation.Anton.GetModPlayer<OnThatSidePlayer>().drawMouth ^= true;
+                        }
+                        if (AnimationProjectile.sharedMouthKey.Contains(n))
+                        {
+                            animation.Victor.GetModPlayer<OnThatSidePlayer>().drawMouth ^= true;
+                            animation.Anton.GetModPlayer<OnThatSidePlayer>().drawMouth ^= true;
+                        }
+                    }
+                }
                 //Main.dayTime = true;
                 //Main.time = Main.dayLength * 0.875f;
             }
