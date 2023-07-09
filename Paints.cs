@@ -21,7 +21,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("战士");
+            // DisplayName.SetDefault("战士");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
@@ -61,7 +61,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("战士");
+            // DisplayName.SetDefault("战士");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
@@ -101,7 +101,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("战士");
+            // DisplayName.SetDefault("战士");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
@@ -153,7 +153,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("战士");
+            // DisplayName.SetDefault("战士");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
@@ -192,7 +192,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("列宁同志");
+            // DisplayName.SetDefault("列宁同志");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
@@ -242,7 +242,7 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("列宁同志_大号");
+            // DisplayName.SetDefault("列宁同志_大号");
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 

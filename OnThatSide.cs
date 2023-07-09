@@ -35,31 +35,31 @@ namespace OnThatSide
 {
     public static class Utils
     {
-        public static void GetScreenDrawArea(Vector2 screenPosition, Vector2 offSet, out int firstTileX, out int lastTileX, out int firstTileY, out int lastTileY)
-        {
-            firstTileX = (int)((screenPosition.X - offSet.X) / 16f - 1f);
-            lastTileX = (int)((screenPosition.X + (float)Main.screenWidth + offSet.X) / 16f) + 2;
-            firstTileY = (int)((screenPosition.Y - offSet.Y) / 16f - 1f);
-            lastTileY = (int)((screenPosition.Y + (float)Main.screenHeight + offSet.Y) / 16f) + 5;
-            if (firstTileX < 4)
-                firstTileX = 4;
+        //public static void GetScreenDrawArea(Vector2 screenPosition, Vector2 offSet, out int firstTileX, out int lastTileX, out int firstTileY, out int lastTileY)
+        //{
+        //    firstTileX = (int)((screenPosition.X - offSet.X) / 16f - 1f);
+        //    lastTileX = (int)((screenPosition.X + (float)Main.screenWidth + offSet.X) / 16f) + 2;
+        //    firstTileY = (int)((screenPosition.Y - offSet.Y) / 16f - 1f);
+        //    lastTileY = (int)((screenPosition.Y + (float)Main.screenHeight + offSet.Y) / 16f) + 5;
+        //    if (firstTileX < 4)
+        //        firstTileX = 4;
 
-            if (lastTileX > Main.maxTilesX - 4)
-                lastTileX = Main.maxTilesX - 4;
+        //    if (lastTileX > Main.maxTilesX - 4)
+        //        lastTileX = Main.maxTilesX - 4;
 
-            if (firstTileY < 4)
-                firstTileY = 4;
+        //    if (firstTileY < 4)
+        //        firstTileY = 4;
 
-            if (lastTileY > Main.maxTilesY - 4)
-                lastTileY = Main.maxTilesY - 4;
+        //    if (lastTileY > Main.maxTilesY - 4)
+        //        lastTileY = Main.maxTilesY - 4;
 
-            if (Main.sectionManager.FrameSectionsLeft > 0)
-            {
-                TimeLogger.DetailedDrawReset();
-                WorldGen.SectionTileFrameWithCheck(firstTileX, firstTileY, lastTileX, lastTileY);
-                TimeLogger.DetailedDrawTime(5);
-            }
-        }
+        //    if (Main.sectionManager.FrameSectionsLeft > 0)
+        //    {
+        //        TimeLogger.DetailedDrawReset();
+        //        WorldGen.SectionTileFrameWithCheck(firstTileX, firstTileY, lastTileX, lastTileY);
+        //        TimeLogger.DetailedDrawTime(5);
+        //    }
+        //}
 
         public static Vector2 Multiply(this Vector2 v1, Vector2 v2) => v1 * v2;
         public static Vector2 Multiply(this Vector2 v1, float x = 1, float y = 1) => v1 * new Vector2(x, y);
@@ -1882,12 +1882,12 @@ namespace OnThatSide
         public static int StartOffset => 0;//0 2320 3340 4420 5500 6100 6640 7420 10240
         public override void Load()
         {
-            On.Terraria.Audio.MP3AudioTrack.ReadAheadPutAChunkIntoTheBuffer += MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer;
-            On.Terraria.Main.DoDraw += Main_DoDraw;
+            Terraria.Audio.On_MP3AudioTrack.ReadAheadPutAChunkIntoTheBuffer += MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer;
+            Terraria.On_Main.DoDraw += Main_DoDraw;
             base.Load();
         }
 
-        private void Main_DoDraw(On.Terraria.Main.orig_DoDraw orig, Main self, GameTime gameTime)
+        private void Main_DoDraw(Terraria.On_Main.orig_DoDraw orig, Main self, GameTime gameTime)
         {
             orig.Invoke(self, gameTime);
 
@@ -1896,7 +1896,7 @@ namespace OnThatSide
         public static bool UseRedArmyChoir => false;
         public static bool showPosition;
         public static long? positionBuffer;
-        private void MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer(On.Terraria.Audio.MP3AudioTrack.orig_ReadAheadPutAChunkIntoTheBuffer orig, MP3AudioTrack self)
+        private void MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer(Terraria.Audio.On_MP3AudioTrack.orig_ReadAheadPutAChunkIntoTheBuffer orig, MP3AudioTrack self)
         {
             orig.Invoke(self);
             var fieldInfo = typeof(MP3AudioTrack).GetField("_mp3Stream", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -2217,8 +2217,8 @@ namespace OnThatSide
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("一张记录着过去的黑胶唱片");
-            Tooltip.SetDefault("上面写着「歌唱动荡的青春 苏联 红旗歌舞团」\n左键点击观看代码动画 《在那一边》(片段)");
+            // DisplayName.SetDefault("一张记录着过去的黑胶唱片");
+            // Tooltip.SetDefault("上面写着「歌唱动荡的青春 苏联 红旗歌舞团」\n左键点击观看代码动画 《在那一边》(片段)");
         }
         public override void SetDefaults()
         {
