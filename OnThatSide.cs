@@ -1780,7 +1780,7 @@ namespace OnThatSide
             {
                 int projCenX = 1050;
                 int projCenY = 150;
-                Projectile.NewProjectile(Projectile.GetSource_NaturalSpawn(), Player.Center, default, ModContent.ProjectileType<AnimationProjectile>(), 0, 0, Player.whoAmI);
+                Projectile.NewProjectile(Terraria.Entity.GetSource_NaturalSpawn(), Player.Center, default, ModContent.ProjectileType<AnimationProjectile>(), 0, 0, Player.whoAmI);
                 WorldGen.PlaceTile(projCenX, projCenY, ModContent.TileType<MiniProjectorTile>());
                 ModContent.GetInstance<ProjectorTileEntity>().Hook_AfterPlacement(projCenX, projCenY, ModContent.TileType<MiniProjectorTile>(), 0, 0, 0);
                 if (TileEntity.ByPosition.TryGetValue(new Point16(projCenX, projCenY), out TileEntity entity) && entity is ProjectorTileEntity projEntity)
@@ -1882,8 +1882,8 @@ namespace OnThatSide
         public static int StartOffset => 0;//0 2320 3340 4420 5500 6100 6640 7420 10240
         public override void Load()
         {
-            Terraria.Audio.On_MP3AudioTrack.ReadAheadPutAChunkIntoTheBuffer += MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer;
-            Terraria.On_Main.DoDraw += Main_DoDraw;
+            On_MP3AudioTrack.ReadAheadPutAChunkIntoTheBuffer += MP3AudioTrack_ReadAheadPutAChunkIntoTheBuffer;
+            On_Main.DoDraw += Main_DoDraw;
             base.Load();
         }
 
