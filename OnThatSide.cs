@@ -1523,7 +1523,7 @@ namespace OnThatSide
     /// </summary>
     public class MouthLayer : PlayerDrawLayer
     {
-        protected override void Draw(ref PlayerDrawSet drawInfo)
+        public override void Draw(ref PlayerDrawSet drawInfo)
         {
             var player = drawInfo.drawPlayer;
             if (player.GetModPlayer<OnThatSidePlayer>().drawMouth)
