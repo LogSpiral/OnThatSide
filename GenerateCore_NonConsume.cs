@@ -1,21 +1,4 @@
-﻿using ImproveGame.Common.ConstructCore;
-using ImproveGame.Common.Systems;
-using Microsoft.Xna.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Terraria;
-using Terraria.Audio;
-using Terraria.DataStructures;
-using Terraria.GameInput;
-using Terraria.ID;
-using Terraria.ModLoader.IO;
-using Terraria.ObjectData;
-using Terraria.UI;
-using Terraria.UI.Gamepad;
-//using static OnThatSide.MyUtils;
+﻿//using static OnThatSide.MyUtils;
 namespace OnThatSide
 {
     //public class MyUtils//来自qol

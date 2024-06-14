@@ -1,22 +1,16 @@
 using Microsoft.Xna.Framework;
 using SubworldLibrary;
 using System.Collections.Generic;
-using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.Generation;
 using Terraria.ModLoader;
-using Terraria.Utilities;
 using Terraria.WorldBuilding;
 using Terraria.ID;
 using Terraria.IO;
 using ImmersiveProjector.Tiles;
-using ImmersiveProjector.DataStructure;
-using ImmersiveProjector;
 using System;
 using System.Reflection;
-using Terraria.ModLoader.IO;
-using Newtonsoft.Json;
 using Terraria.GameContent;
 using Terraria.Audio;
 using Microsoft.Xna.Framework.Audio;
@@ -24,12 +18,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI.Chat;
 using ReLogic.Graphics;
-using Terraria.GameInput;
-using Terraria.Graphics.Effects;
-using Terraria.UI;
-using Terraria.Graphics.Light;
 using ImproveGame.Common.Utils;
-using System.Reflection.Metadata;
 
 namespace OnThatSide
 {
