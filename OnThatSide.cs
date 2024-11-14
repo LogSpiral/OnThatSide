@@ -1303,11 +1303,11 @@ namespace OnThatSide
             }
             base.AI();
         }
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
             OnThatSidePlayer.zoomTarget = 1f;
             OnThatSidePlayer.screenOffsetor = default;
-            base.Kill(timeLeft);
+            base.OnKill(timeLeft);
         }
     }
     public class DrawInterfaceProjectile : ModProjectile
@@ -1337,9 +1337,9 @@ namespace OnThatSide
             Projectile.timeLeft = 2;
             base.AI();
         }
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
-            base.Kill(timeLeft);
+            base.OnKill(timeLeft);
         }
         public override bool PreDraw(ref Color lightColor)
         {

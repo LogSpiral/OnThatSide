@@ -1,0 +1,48 @@
+Biomes: {
+	OnThatSideBiome: {
+		DisplayName: On That Side Biome
+		TownNPCDialogueName: the On That Side Biome
+	}
+}
+
+Items: {
+	Disk: {
+		DisplayName: Disk
+		Tooltip: ""
+	}
+
+	Leader2Item: {
+		DisplayName: Leader2 Item
+		Tooltip: ""
+	}
+
+	LeaderItem: {
+		DisplayName: Leader Item
+		Tooltip: ""
+	}
+
+	Soilder2Item: {
+		DisplayName: Soilder2 Item
+		Tooltip: ""
+	}
+
+	Soilder3Item: {
+		DisplayName: Soilder3 Item
+		Tooltip: ""
+	}
+
+	Soilder4Item: {
+		DisplayName: Soilder4 Item
+		Tooltip: ""
+	}
+
+	SoilderItem: {
+		DisplayName: Soilder Item
+		Tooltip: ""
+	}
+}
+
+Projectiles: {
+	AnimationProjectile.DisplayName: Animation Projectile
+	DrawInterfaceProjectile.DisplayName: Draw Interface Projectile
+}
