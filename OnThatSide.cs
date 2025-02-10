@@ -97,10 +97,10 @@ namespace OnThatSide
 
             Main.spawnTileY = height;
         }
-        public override List<GenPass> Tasks => new List<GenPass>
-        {
+        public override List<GenPass> Tasks =>
+        [
             new PassLegacy("OnThatSideWorld",BuildAnimWorld)
-        };
+        ];
         public override int Width => 2100;
         public override void OnEnter()
         {
