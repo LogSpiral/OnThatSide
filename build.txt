@@ -1,6 +1,6 @@
 displayName = 在那一边
 author = 阿汪(LogSpiral)
 version = 0.1
-modReferences = SubworldLibrary,ImmersiveProjector,ImproveGame
+modReferences = SubworldLibrary,ImmersiveProjector
 includeSource = true
-sortAfter = SubworldLibrary,ImmersiveProjector,ImproveGame
+sortAfter = SubworldLibrary,ImmersiveProjector

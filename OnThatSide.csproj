@@ -14,9 +14,6 @@
 		<Reference Include="ImmersiveProjector">
 			<HintPath>ImmersiveProjector.dll</HintPath>
 		</Reference>
-		<Reference Include="ImproveGame">
-			<HintPath>ImproveGame.dll</HintPath>
-		</Reference>
 		<Reference Include="SubworldLibrary">
 			<HintPath>SubworldLibrary.dll</HintPath>
 		</Reference>

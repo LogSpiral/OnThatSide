@@ -18,7 +18,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI.Chat;
 using ReLogic.Graphics;
-using ImproveGame.Common.Utils;
+//using ImproveGame.Common.Utils;
 
 namespace OnThatSide
 {
